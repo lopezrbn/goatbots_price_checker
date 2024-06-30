@@ -6,7 +6,7 @@ import os
 import json
 
 
-PATH_DATA_FOLDER = os.path.join("0_data")
+PATH_DATA_FOLDER = os.path.join("/home", "ubuntu", "lopezrbn", "goatbots_price_checker", "0_data")
 PATH_CARD_DEFINITIONS = os.path.join(PATH_DATA_FOLDER, "0_card_definitions", "card-definitions.txt")
 PATH_CARD_PRICES = os.path.join(PATH_DATA_FOLDER, "1_card_prices")
 PATH_DF_FINAL = os.path.join(PATH_DATA_FOLDER, "2_df_final", "df.parquet")
