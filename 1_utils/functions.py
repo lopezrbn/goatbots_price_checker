@@ -39,10 +39,14 @@ def plot_card_prices(df, name=None, cardset=None, foil=None, cardID=None):
     plt.show()
 
 
-def price_analysis(df, name=None, cardset=None, foil=None, cardID=None):
+def price_analysis(df, name=None, cardset=None, foil=None, cardID=None, range_time="3m"):
     
     if cardID is not None:
-        df = df.iloc[[cardID]]
+        cardID = str(cardID)
+        df = df.loc[[cardID]]
+        name = df.loc[cardID, "name"]
+        cardset = df.loc[cardID, "cardset"]
+        foil = df.loc[cardID, "foil"]
     else:
         condition = True
         if name is not None:
@@ -52,38 +56,36 @@ def price_analysis(df, name=None, cardset=None, foil=None, cardID=None):
         if foil is not None:
             condition &= (df['foil'] == foil)
         df = df.loc[condition]
+        cardID = df.index[0]
     
     df = df.drop(['name', 'cardset', 'rarity', 'foil'], axis=1, errors='ignore')
 
-    price_today = df.iloc[:, -1].values[0]
-    
-    price_max = df.max().max()
-    price_min = df.min().min()
-    today_vs_range_all = (price_today - price_min) / (price_max - price_min) if price_max != price_min else 0
-    
-    price_max_6m = df.iloc[:, -180:].max().max()
-    price_min_6m = df.iloc[:, -180:].min().min()
-    today_vs_range_6m = (price_today - price_min_6m) / (price_max_6m - price_min_6m) if price_max_6m != price_min_6m else 0
+    price_today = float(df.iloc[:, -1].values[0])
 
-    price_max_3m = df.iloc[:, -90:].max().max()
-    price_min_3m = df.iloc[:, -90:].min().min()
-    today_vs_range_3m = (price_today - price_min_3m) / (price_max_3m - price_min_3m) if price_max_3m != price_min_3m else 0
+    if range_time=="1w":
+        range = 7
+    elif range_time=="1m":
+        range = 30
+    elif range_time=="3m":
+        range = 90
+    elif range_time=="6m":
+        range = 180
+    else:
+        range = 0
 
-    price_max_1m = df.iloc[:, -30:].max().max()
-    price_min_1m = df.iloc[:, -30:].min().min()
-    today_vs_range_1m = (price_today - price_min_1m) / (price_max_1m - price_min_1m) if price_max_1m != price_min_1m else 0
-    
-    price_max_1w = df.iloc[:, -7:].max().max()
-    price_min_1w = df.iloc[:, -7:].min().min()
-    today_vs_range_1w = (price_today - price_min_1w) / (price_max_1w - price_min_1w) if price_max_1w != price_min_1w else 0
+    df = df.iloc[:, -range:]
+    price_max_range = float(df.max().max())
+    price_min_range = float(df.min().min())
+    today_vs_range = (price_today - price_min_range) / (price_max_range - price_min_range) if price_max_range != price_min_range else 0.0
+    today_vs_range = round(today_vs_range, 2)
 
-    print(f"Today's price: {price_today}")
-    print(f"Today's price vs. 1-week range: {today_vs_range_1w:.2%}, [{price_min_1w:.2f} - {price_today} - {price_max_1w:.2f}]")
-    print(f"Today's price vs. 1-month range: {today_vs_range_1m:.2%}, [{price_min_1m:.2f} - {price_today} - {price_max_1m:.2f}]")
-    print(f"Today's price vs. 3-month range: {today_vs_range_3m:.2%}, [{price_min_3m:.2f} - {price_today} - {price_max_3m:.2f}]")
-    print(f"Today's price vs. 6-month range: {today_vs_range_6m:.2%}, [{price_min_6m:.2f} - {price_today} - {price_max_6m:.2f}]")
-    print(f"Today's price vs. all-time range: {today_vs_range_all:.2%}, [{price_min:.2f} - {price_today} - {price_max:.2f}]")
+    return today_vs_range, price_min_range, price_today, price_max_range
 
 
-def check_card(df, name):
+def check_cardname(df, name):
     return df[df['name'] == name].iloc[:,[0,1,2,3,-1]]
+
+
+def check_cardID(df, cardID):
+    cardID = str(cardID)
+    return df.loc[[cardID], df.columns[[0,1,2,3,-1]]]
