@@ -1,23 +1,15 @@
-import pandas as pd
-import os
+import config
 import sys
-sys.path.append("1_utils")
+sys.path.append(config.DIR_UTILS)
 import functions as fun
+import pandas as pd
 import json
 
 
-PATH_DATA_FOLDER = os.path.join("/home", "ubuntu", "lopezrbn", "goatbots_price_checker", "0_data")
-PATH_DF_FINAL = os.path.join(PATH_DATA_FOLDER, "2_df_final", "df.parquet")
-PATH_OTHER_DATA = os.path.join(PATH_DATA_FOLDER, "3_other_data")
-PATH_FAV_CARDS = os.path.join(PATH_OTHER_DATA, "fav_cards.json")
-PATH_SELL_ALERTS = os.path.join(PATH_OTHER_DATA, "sell_alerts.json")
-PATH_BUY_ALERTS = os.path.join(PATH_OTHER_DATA, "buy_alerts.json")
-
-
-def _check_price_alert(cardID, df, range_time="3m", sell_alert=0.75, buy_alert=0.25, verbose=False):
+def _check_price_alert(cardID, range_time="3m", sell_alert=0.75, buy_alert=0.25, verbose=False):
     if verbose:
         print(f"\tChecking price alert for cardID {cardID}...")
-    today_vs_range, price_min_range, price_today, price_max_range = fun.price_analysis(df, cardID=cardID, range_time=range_time)
+    today_vs_range, price_min_range, price_today, price_max_range = fun.price_check(cardID=cardID, range_time=range_time)
     if today_vs_range <= buy_alert:
         # BUY ALERT
         if verbose:
@@ -40,16 +32,16 @@ def check_price_alerts(verbose=False):
     print("Checking price alerts...")
 
     # Load df with prices
-    df = pd.read_parquet(PATH_DF_FINAL)
+    df = pd.read_parquet(config.PATH_DF_PRICES)
 
     # Load fav cards
-    with open(PATH_FAV_CARDS, "r") as f:
+    with open(config.PATH_FAV_CARDS, "r") as f:
         fav_cards = json.load(f)
 
     # Check alerts
     alerts = []
     for cardID in fav_cards.keys():
-        alerts.append(_check_price_alert(cardID, df))
+        alerts.append(_check_price_alert(cardID))
     alerts
 
     # Extract sell and buy alerts
@@ -82,9 +74,9 @@ def check_price_alerts(verbose=False):
     # Save alerts
     if verbose:
         print("\tSaving alerts...")
-    with open(PATH_SELL_ALERTS, "w") as f:
+    with open(config.PATH_SELL_ALERTS, "w") as f:
         json.dump(sell_alerts, f)
-    with open(PATH_BUY_ALERTS, "w") as f:
+    with open(config.PATH_BUY_ALERTS, "w") as f:
         json.dump(buy_alerts, f)
     if verbose:
         print("\t\tAlerts saved successfully.")
