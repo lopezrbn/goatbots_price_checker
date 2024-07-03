@@ -1,6 +1,12 @@
 # Credentials
 email_credentials.json
 
+# Data folder
+0_data/
+
+# Logs
+2_logs/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

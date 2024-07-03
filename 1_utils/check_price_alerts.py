@@ -6,7 +6,7 @@ import pandas as pd
 import json
 
 
-def _check_price_alert(cardID, range_time="3m", sell_alert=0.75, buy_alert=0.25, verbose=False):
+def _check_price_alert(cardID, range_time="1m", sell_alert=0.75, buy_alert=0.25, verbose=False):
     if verbose:
         print(f"\tChecking price alert for cardID {cardID}...")
     today_vs_range, price_min_range, price_today, price_max_range = fun.price_check(cardID=cardID, range_time=range_time)
@@ -27,7 +27,7 @@ def _check_price_alert(cardID, range_time="3m", sell_alert=0.75, buy_alert=0.25,
         return (0, cardID, range_time, today_vs_range, price_min_range, price_today, price_max_range)
 
 
-def check_price_alerts(verbose=False):
+def check_price_alerts(range_time="1m", verbose=False):
 
     print("Checking price alerts...")
 
@@ -41,7 +41,7 @@ def check_price_alerts(verbose=False):
     # Check alerts
     alerts = []
     for cardID in fav_cards.keys():
-        alerts.append(_check_price_alert(cardID))
+        alerts.append(_check_price_alert(cardID, range_time=range_time))
     alerts
 
     # Extract sell and buy alerts
