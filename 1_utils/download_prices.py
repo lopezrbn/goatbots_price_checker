@@ -14,11 +14,13 @@ URL_LAST_DAY_PRICES = "https://www.goatbots.com/download/price-history.zip"
 URL_YTD_PRICES = f"https://www.goatbots.com/download/price-history-{pd.Timestamp.now().year}.zip"
 
 
-def generate_df(
+def _generate_df(
     path_card_definitions = PATH_CARD_DEFINITIONS,
-    path_card_prices = PATH_CARD_PRICES
+    path_card_prices = PATH_CARD_PRICES,
+    verbose = False
 ):
-    print("Generating DataFrame...")
+    if verbose:
+        print("Generating DataFrame...")
     # Load card definitions
     with open(path_card_definitions, 'r') as f:
         card_definitions = json.load(f)
@@ -36,12 +38,13 @@ def generate_df(
         df = df.merge(prices, left_index=True, right_index=True)
     
     df = df.sort_index()
-    print("\tDataFrame generated successfully.")
+    if verbose:
+        print("\tDataFrame generated successfully.")
 
     return df
 
 
-def download_zip_files(url):
+def _download_zip_files(url, verbose=False):
     # Download the zip file
     r = requests.get(url)
     if r.status_code == 200:
@@ -51,27 +54,42 @@ def download_zip_files(url):
         with zipfile.ZipFile(zip_file) as z:
             # Extract all files in the zip
             z.extractall(PATH_CARD_PRICES)  # Specify your extraction path
-            # Print confirmation message with number of files extracted
-            print(f"\tExtracted {len(z.namelist())} files from the zip file.")
+            if verbose:
+                # Print confirmation message with number of files extracted
+                print(f"\tExtracted {len(z.namelist())} files from the zip file.")
     else:
         print("Failed to download the file.")
 
 
-# Download last day prices
-print("Downloading last day prices...")
-download_zip_files(URL_LAST_DAY_PRICES)
+def download_prices(verbose=False):
 
-# Download YTD prices in case some last day prices are missing
-print("Downloading YTD prices...")
-download_zip_files(URL_YTD_PRICES)
+    print("Downloading prices...")
 
-# Read the prices and generate a DataFrame
-df = generate_df()
+    # Download last day prices
+    if verbose:
+        print("Downloading last day prices...")
+    _download_zip_files(URL_LAST_DAY_PRICES)
 
-# Save DataFrame to parquet
-try:
-    print("Saving df into parquet...")
-    df.to_parquet(PATH_DF_FINAL)
-    print("\tdf saved successfully.")
-except Exception as e:
-    print(f"Failed to save df: {e}")
+    # Download YTD prices in case some last day prices are missing
+    if verbose:
+        print("Downloading YTD prices...")
+    _download_zip_files(URL_YTD_PRICES)
+
+    # Read the prices and generate a DataFrame
+    df = _generate_df()
+
+    # Save DataFrame to parquet
+    try:
+        if verbose:
+            print("Saving df into parquet...")
+        df.to_parquet(PATH_DF_FINAL)
+        if verbose:
+            print("\tdf saved successfully.")
+    except Exception as e:
+        print(f"Failed to save df: {e}")
+    
+    print("\tPrices downloaded successfully.")
+
+
+if __name__ == "__main__":
+    download_prices()
