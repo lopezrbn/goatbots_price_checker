@@ -23,9 +23,12 @@ def send_email():
     with open(config.PATH_BUY_ALERTS) as f:
         buy_alerts = pd.read_json(f, orient="index")
 
-    # Set column "today_vs_range" to percentage
-    sell_alerts['today_vs_range'] = sell_alerts['today_vs_range'].map("{:.0%}".format)
-    buy_alerts['today_vs_range'] = buy_alerts['today_vs_range'].map("{:.0%}".format)
+    # Set columns to percentage
+    columns = ["Δ1d", "Δ1w", "Δ1m", "Δ3m", "Δ6m", "%range"]
+    for col in columns:
+        sell_alerts[col] = sell_alerts[col].map("{:.0%}".format)
+        buy_alerts[col] = buy_alerts[col].map("{:.0%}".format)
+
 
     # Transform dataframes to html
     sell_alerts_html = sell_alerts.to_html(index=False)

@@ -9,22 +9,26 @@ import json
 def _check_price_alert(cardID, range_time="1m", sell_alert=0.75, buy_alert=0.25, verbose=False):
     if verbose:
         print(f"\tChecking price alert for cardID {cardID}...")
-    today_vs_range, price_min_range, price_today, price_max_range = fun.price_check(cardID=cardID, range_time=range_time)
+    # today_vs_range, price_min_range, price_today, price_max_range = fun.price_check(cardID=cardID, range_time=range_time)
+    prices = fun.price_check(cardID=cardID, range_time=range_time)
+    today_vs_range = prices[range_time]["today_vs_range"]
+
     if today_vs_range <= buy_alert:
         # BUY ALERT
+        alert_flag = -1
         if verbose:
             print(f"\t\tBUY ALERT for cardID {cardID}!")
-        return (-1, cardID, range_time, today_vs_range, price_min_range, price_today, price_max_range)
     elif today_vs_range >= sell_alert:
         # SELL ALERT
+        alert_flag = 1
         if verbose:
             print(f"\t\tSELL ALERT for cardID {cardID}!")
-        return (1, cardID, range_time, today_vs_range, price_min_range, price_today, price_max_range)
     else:
         # HOLD ALERT
+        alert_flag = 0
         if verbose:
             print(f"\t\tHOLD ALERT for cardID {cardID}.")
-        return (0, cardID, range_time, today_vs_range, price_min_range, price_today, price_max_range)
+    return (alert_flag, cardID, range_time, prices)
 
 
 def check_price_alerts(range_time="1m", verbose=False):
@@ -48,27 +52,38 @@ def check_price_alerts(range_time="1m", verbose=False):
     sell_alerts = {}
     buy_alerts = {}
     for alert in alerts:
+        prices = alert[3]
         if alert[0] == 1:
             sell_alerts[alert[1]] = {
                 "name": fav_cards[alert[1]]["name"],
                 "cardset": fav_cards[alert[1]]["cardset"],
                 "foil": fav_cards[alert[1]]["foil"],
+                "price": prices["1d"]["day"],
+                "Δ1d": prices["1d"]["delta"],
+                "Δ1w": prices["1w"]["delta"],
+                "Δ1m": prices["1m"]["delta"],
+                "Δ3m": prices["3m"]["delta"],
+                "Δ6m": prices["6m"]["delta"],
                 "range_time": alert[2],
-                "today_vs_range": alert[3],
-                "price_min_range": alert[4],
-                "price_today": alert[5],
-                "price_max_range": alert[6]
+                "%range": prices[range_time]["today_vs_range"],
+                "min_range": prices[range_time]["min"],
+                "max_range": prices[range_time]["max"]
             }
         elif alert[0] == -1:
             buy_alerts[alert[1]] = {
                 "name": fav_cards[alert[1]]["name"],
                 "cardset": fav_cards[alert[1]]["cardset"],
                 "foil": fav_cards[alert[1]]["foil"],
+                "price": prices["1d"]["day"],
+                "Δ1d": prices["1d"]["delta"],
+                "Δ1w": prices["1w"]["delta"],
+                "Δ1m": prices["1m"]["delta"],
+                "Δ3m": prices["3m"]["delta"],
+                "Δ6m": prices["6m"]["delta"],
                 "range_time": alert[2],
-                "today_vs_range": alert[3],
-                "price_min_range": alert[4],
-                "price_today": alert[5],
-                "price_max_range": alert[6]
+                "%range": prices[range_time]["today_vs_range"],
+                "min_range": prices[range_time]["min"],
+                "max_range": prices[range_time]["max"]
             }
 
     # Save alerts

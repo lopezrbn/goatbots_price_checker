@@ -64,29 +64,28 @@ def price_check(cardID=None, name=None, cardset=None, foil=None, range_time="3m"
     df_prices_filtered = df_prices_filtered.drop(['name', 'cardset', 'rarity', 'foil'], axis=1, errors='ignore')
     # Get the price today
     price_today = float(df_prices_filtered.iloc[:, -1].values[0])
-    # Define the range of time to consider
-    if range_time=="1w":
-        range = 7
-    elif range_time=="1m":
-        range = 30
-    elif range_time=="3m":
-        range = 90
-    elif range_time=="6m":
-        range = 180
-    else:
-        range = 0
-    # Get the price range
-    df_prices_filtered = df_prices_filtered.iloc[:, -range:]
-    price_max_range = float(df_prices_filtered.max().max())
-    price_min_range = float(df_prices_filtered.min().min())
-    today_vs_range = (price_today - price_min_range) / (price_max_range - price_min_range) if price_max_range != price_min_range else 0.0
-    today_vs_range = round(today_vs_range, 2)
+    # Initialize the prices dictionary
+    prices = {}
+    # Define the range times
+    range_times_words = ["1d", "1w", "1m", "3m", "6m"]
+    range_times = [2, 7, 30, 90, 180]
+    # Get the prices for each range
+    for range_time_word, range_time in zip(range_times_words, range_times):
+        prices[range_time_word] = {}
+        df_temp = df_prices_filtered.iloc[:, -range_time:]
+        prices[range_time_word]["day"] = float(df_temp.iloc[:, -range_time].values[0])
+        prices[range_time_word]["delta"] = ((price_today - prices[range_time_word]["day"]) / prices[range_time_word]["day"]) if prices[range_time_word]["day"] != 0 else 0.0
+        prices[range_time_word]["delta"] = round(prices[range_time_word]["delta"], 2)
+        prices[range_time_word]["min"] = float(df_temp.min().min())
+        prices[range_time_word]["max"] = float(df_temp.max().max())
+        prices[range_time_word]["today_vs_range"] = (price_today - prices[range_time_word]["min"]) / (prices[range_time_word]["max"] - prices[range_time_word]["min"]) if prices[range_time_word]["max"] != prices[range_time_word]["min"] else 0.0
+        prices[range_time_word]["today_vs_range"] = round(prices[range_time_word]["today_vs_range"], 2)
 
     if verbose:
         print(f"{cardID[0]} - {name.title()} - {cardset.upper()} - {f'Foil' if foil else 'Non-foil'}")
-        print("today_vs_range, price_min_range, price_today, price_max_range:")
+        print(f"Price yesterday: {price_today}")
 
-    return today_vs_range, price_min_range, price_today, price_max_range
+    return prices
 
 
 def plot_card_prices(cardID=None, name=None, cardset=None, foil=None):
