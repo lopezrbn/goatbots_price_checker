@@ -44,9 +44,9 @@ def check_price_alerts(range_time="1m", verbose=False):
 
     # Check alerts
     alerts = []
+    
     for cardID in fav_cards.keys():
         alerts.append(_check_price_alert(cardID, range_time=range_time))
-    alerts
 
     # Extract sell and buy alerts
     sell_alerts = {}

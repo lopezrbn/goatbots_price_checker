@@ -58,6 +58,8 @@ def send_email():
 
     # Send the email
     with smtplib.SMTP_SSL('smtp.gmail.com', 465) as server:
+    # with smtplib.SMTP('smtp.office365.com', 587) as server:
+        # server.starttls()
         server.login(sender_email, password)
         server.sendmail(sender_email, receiver_email, message.as_string())
 

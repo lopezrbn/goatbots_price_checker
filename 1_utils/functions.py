@@ -74,11 +74,11 @@ def price_check(cardID=None, name=None, cardset=None, foil=None, range_time="3m"
         prices[range_time_word] = {}
         df_temp = df_prices_filtered.iloc[:, -range_time:]
         prices[range_time_word]["day"] = float(df_temp.iloc[:, -range_time].values[0])
-        print(f"Price today: {price_today}")
-        print(f"Price {range_time_word} day: {prices[range_time_word]['day']}")
+        # print(f"Price today: {price_today}")
+        # print(f"Price {range_time_word} day: {prices[range_time_word]['day']}")
         prices[range_time_word]["delta"] = ((price_today - prices[range_time_word]["day"]) / prices[range_time_word]["day"]) if prices[range_time_word]["day"] != 0 else 0.0
         prices[range_time_word]["delta"] = round(prices[range_time_word]["delta"], 2)
-        print(prices[range_time_word]["delta"])
+        # print(prices[range_time_word]["delta"])
         prices[range_time_word]["min"] = float(df_temp.min().min())
         prices[range_time_word]["max"] = float(df_temp.max().max())
         prices[range_time_word]["today_vs_range"] = (price_today - prices[range_time_word]["min"]) / (prices[range_time_word]["max"] - prices[range_time_word]["min"]) if prices[range_time_word]["max"] != prices[range_time_word]["min"] else 0.0
