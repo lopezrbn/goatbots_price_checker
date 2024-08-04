@@ -53,38 +53,39 @@ def check_price_alerts(range_time="1m", verbose=False):
     buy_alerts = {}
     for alert in alerts:
         prices = alert[3]
-        if alert[0] == 1:
-            sell_alerts[alert[1]] = {
-                "name": fav_cards[alert[1]]["name"],
-                "cardset": fav_cards[alert[1]]["cardset"],
-                "foil": fav_cards[alert[1]]["foil"],
-                "price": prices["today"]["day"],
-                "Δ1d": prices["1d"]["delta"],
-                "Δ1w": prices["1w"]["delta"],
-                "Δ1m": prices["1m"]["delta"],
-                "Δ3m": prices["3m"]["delta"],
-                "Δ6m": prices["6m"]["delta"],
-                "range_time": alert[2],
-                "%range": prices[range_time]["today_vs_range"],
-                "min_range": prices[range_time]["min"],
-                "max_range": prices[range_time]["max"]
-            }
-        elif alert[0] == -1:
-            buy_alerts[alert[1]] = {
-                "name": fav_cards[alert[1]]["name"],
-                "cardset": fav_cards[alert[1]]["cardset"],
-                "foil": fav_cards[alert[1]]["foil"],
-                "price": prices["today"]["day"],
-                "Δ1d": prices["1d"]["delta"],
-                "Δ1w": prices["1w"]["delta"],
-                "Δ1m": prices["1m"]["delta"],
-                "Δ3m": prices["3m"]["delta"],
-                "Δ6m": prices["6m"]["delta"],
-                "range_time": alert[2],
-                "%range": prices[range_time]["today_vs_range"],
-                "min_range": prices[range_time]["min"],
-                "max_range": prices[range_time]["max"]
-            }
+        if prices["today"]["day"] >= 0.1:
+            if alert[0] == 1:
+                sell_alerts[alert[1]] = {
+                    "name": fav_cards[alert[1]]["name"],
+                    "cardset": fav_cards[alert[1]]["cardset"],
+                    "foil": fav_cards[alert[1]]["foil"],
+                    "price": prices["today"]["day"],
+                    "Δ1d": prices["1d"]["delta"],
+                    "Δ1w": prices["1w"]["delta"],
+                    "Δ1m": prices["1m"]["delta"],
+                    "Δ3m": prices["3m"]["delta"],
+                    "Δ6m": prices["6m"]["delta"],
+                    "range_time": alert[2],
+                    "%range": prices[range_time]["today_vs_range"],
+                    "min_range": prices[range_time]["min"],
+                    "max_range": prices[range_time]["max"]
+                }
+            elif alert[0] == -1:
+                buy_alerts[alert[1]] = {
+                    "name": fav_cards[alert[1]]["name"],
+                    "cardset": fav_cards[alert[1]]["cardset"],
+                    "foil": fav_cards[alert[1]]["foil"],
+                    "price": prices["today"]["day"],
+                    "Δ1d": prices["1d"]["delta"],
+                    "Δ1w": prices["1w"]["delta"],
+                    "Δ1m": prices["1m"]["delta"],
+                    "Δ3m": prices["3m"]["delta"],
+                    "Δ6m": prices["6m"]["delta"],
+                    "range_time": alert[2],
+                    "%range": prices[range_time]["today_vs_range"],
+                    "min_range": prices[range_time]["min"],
+                    "max_range": prices[range_time]["max"]
+                }
 
     # Save alerts
     if verbose:

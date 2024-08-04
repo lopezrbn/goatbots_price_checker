@@ -7,13 +7,13 @@ from send_email import send_email
 import datetime
 
 
-def daily_price_alert(exec_download_prices=True):
+def daily_price_alert(exec_download_prices=False):
     # print date and time for the log
     print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
     # Execute the functions
     if exec_download_prices:
         download_prices(verbose=True)
-    check_price_alerts(range_time="3m")
+    check_price_alerts(range_time="6m")
     send_email()
     print("Daily price alert script finished.\n")
 

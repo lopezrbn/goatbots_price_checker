@@ -23,12 +23,15 @@ def send_email():
     with open(config.PATH_BUY_ALERTS) as f:
         buy_alerts = pd.read_json(f, orient="index")
 
+    # Sort alerts
+    sell_alerts = sell_alerts.sort_values(by=["Δ1d", "name", "cardset", "foil"], ascending=[False, True, True, True])
+    buy_alerts = buy_alerts.sort_values(by=["Δ1d", "name", "cardset", "foil"], ascending=[True, True, True, True])
+
     # Set columns to percentage
     columns = ["Δ1d", "Δ1w", "Δ1m", "Δ3m", "Δ6m", "%range"]
     for col in columns:
         sell_alerts[col] = sell_alerts[col].map("{:.0%}".format)
         buy_alerts[col] = buy_alerts[col].map("{:.0%}".format)
-
 
     # Transform dataframes to html
     sell_alerts_html = sell_alerts.to_html(index=False)
