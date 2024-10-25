@@ -6,6 +6,9 @@ import pandas as pd
 import json
 
 
+MIN_PRICE_THRESHOLD = 0.5
+
+
 def _check_price_alert(cardID, range_time="1m", sell_alert=0.75, buy_alert=0.25, verbose=False):
     if verbose:
         print(f"\tChecking price alert for cardID {cardID}...")
@@ -53,7 +56,7 @@ def check_price_alerts(range_time="1m", verbose=False):
     buy_alerts = {}
     for alert in alerts:
         prices = alert[3]
-        if prices["today"]["day"] >= 0.1:
+        if prices["today"]["day"] >= MIN_PRICE_THRESHOLD:
             if alert[0] == 1:
                 sell_alerts[alert[1]] = {
                     "name": fav_cards[alert[1]]["name"],

@@ -7,7 +7,7 @@ from send_email import send_email
 import datetime
 
 
-def daily_price_alert(exec_download_prices=False):
+def daily_price_alert(exec_download_prices=True):
     # print date and time for the log
     print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
     # Execute the functions
