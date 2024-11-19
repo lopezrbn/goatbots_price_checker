@@ -30,5 +30,5 @@ PATH_BUY_ALERTS = os.path.join(DIR_ALERTS, "buy_alerts.json")
 
 # Define URLs
 URL_CARD_DEFINITIONS = "https://www.goatbots.com/download/card-definitions.zip"
-URL_LAST_DAY_PRICES = "https://www.goatbots.com/download/price-history.zip"
-URL_YTD_PRICES = f"https://www.goatbots.com/download/price-history-{datetime.datetime.now().year}.zip"
+URL_LAST_DAY_PRICES = "https://www.goatbots.com/download/prices/price-history.zip"
+URL_YTD_PRICES = f"https://www.goatbots.com/download/prices/price-history-{datetime.datetime.now().year}.zip"
