@@ -23,7 +23,11 @@ def _download_all_year_prices(year):
     for filename in _generate_price_filenames(year):
         if filename not in card_prices_dates:
             print(f"\t\tFile {filename} not found. Downloading...")
-            fun._download_zip_file(url=config.URL_YTD_PRICES, extract_path=config.DIR_CARD_PRICES)
+            if year == datetime.now().year:
+                url = config.URL_YTD_PRICES
+            elif year == datetime.now().year - 1:
+                url = config.URL_LAST_YEAR_PRICES
+            fun._download_zip_file(url=url, extract_path=config.DIR_CARD_PRICES)
             break
     return None
 
