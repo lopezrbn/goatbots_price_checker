@@ -187,10 +187,13 @@ def add_fav_card(cardID=None, name=None, cardset=None, foil=None):
 
 
 # Initialize df_prices with real values
-if not os.path.exists(config.PATH_DF_PRICES):
-    df_prices = _generate_df_prices(verbose=True)
+if not os.path.exists(config.PATH_CARD_DEFINITIONS):
+    pass
 else:
-    df_prices = pd.read_parquet(config.PATH_DF_PRICES)
+    if not os.path.exists(config.PATH_DF_PRICES):
+        df_prices = _generate_df_prices(verbose=True)
+    else:
+        df_prices = pd.read_parquet(config.PATH_DF_PRICES)
 
 
 if __name__ == "__main__":
