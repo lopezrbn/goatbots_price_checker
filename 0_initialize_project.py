@@ -7,6 +7,7 @@ import functions as fun
 from download_prices import download_prices
 import os
 import pandas as pd
+import json
 
 print("Initializing project...")
 
@@ -17,6 +18,16 @@ for directory in directories:
     if not os.path.exists(dir_path):
         os.makedirs(dir_path)
 print('\tDirectories created')
+
+# Create the creedentials file empty
+if not os.path.exists(config.PATH_EMAIL_CREDENTIALS):
+    email_credentials = {
+        "sender_email": "",
+        "receiver_email": "",
+        "password": "",
+    }
+    with open(config.PATH_EMAIL_CREDENTIALS, 'w') as f:
+        json.dump(email_credentials, f)
 
 # Download card definitions
 fun._download_zip_file(url=config.URL_CARD_DEFINITIONS, extract_path=config.DIR_CARD_DEFINITIONS)
