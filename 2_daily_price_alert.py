@@ -17,7 +17,8 @@ def daily_price_alert(exec_download_prices=True):
         download_prices(verbose=True)
     check_price_alerts(range_time="6m")
     send_email()
-    print("Daily price alert script finished.\n")
+    print("Daily price alert script finished.")
+    print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
 
 
 if __name__ == "__main__":
