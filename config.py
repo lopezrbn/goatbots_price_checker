@@ -15,6 +15,7 @@ DIR_CARD_DEFINITIONS = os.path.join(DIR_DATA, '0_card_definitions')
 DIR_CARD_PRICES = os.path.join(DIR_DATA, '1_card_prices')
 DIR_FAV_CARDS = os.path.join(DIR_DATA, "2_fav_cards")
 DIR_ALERTS = os.path.join(DIR_DATA, "3_alerts")
+DIR_MTGO_COLLECTION = os.path.join(DIR_DATA, "4_mtgo_collection")
 
 # Paths to data files
 PATH_EMAIL_CREDENTIALS = os.path.join(DIR_BASE, "email_credentials.json")
@@ -29,6 +30,7 @@ PATH_SELL_ALERTS = os.path.join(DIR_ALERTS, "sell_alerts.json")
 PATH_BUY_ALERTS = os.path.join(DIR_ALERTS, "buy_alerts.json")
 
 # Define URLs
-URL_CARD_DEFINITIONS = "https://www.goatbots.com/download/card-definitions.zip"
+URL_CARD_DEFINITIONS = "https://www.goatbots.com/download/prices/card-definitions.zip"
 URL_LAST_DAY_PRICES = "https://www.goatbots.com/download/prices/price-history.zip"
 URL_YTD_PRICES = f"https://www.goatbots.com/download/prices/price-history-{datetime.datetime.now().year}.zip"
+URL_LAST_YEAR_PRICES = f"https://www.goatbots.com/download/prices/price-history-{datetime.datetime.now().year - 1}.zip"
