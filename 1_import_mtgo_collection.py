@@ -6,9 +6,9 @@ sys.path.append(config.DIR_UTILS)
 import functions as fun
 
 
-def add_collection_to_fav_cards():
-    # Read collection file and add all cards to fav cards
-    with open(config.PATH_MTGO_COLLECTION) as f:
+def import_mtgo_collection():
+    # Read collection file and add all cards to it
+    with open(config.PATH_COLLECTION_CARDS_MTGO) as f:
         lines = f.readlines()
     # Exclude header and footer
     lines = lines[4:-1]
@@ -16,10 +16,10 @@ def add_collection_to_fav_cards():
     # Remove cardId="1"
     ids_list.remove("1")
     for id in ids_list:
-        fun.add_fav_card(id)
-    print("Collection added to fav cards")
+        fun.add_card_to_collection(id)
+    print("Collection imported from MTGO")
 
 
 if __name__ == "__main__":
-    # Add collection to fav cards
-    add_collection_to_fav_cards()
+    # Import collection from MTGO
+    import_mtgo_collection()
