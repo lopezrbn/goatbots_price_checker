@@ -165,25 +165,46 @@ def _generate_df_prices(verbose=False):
     return df_prices
 
 
-def add_fav_card(cardID=None, name=None, cardset=None, foil=None):
+def add_card_to_collection(cardID=None, name=None, cardset=None, foil=None):
     # Get the card information missing from the function call
     cardID, name, cardset, foil = _complete_card_info(cardID, name, cardset, foil)
     # In case of multiple card IDs, take the first one
     cardID = cardID[0]
     # Load the favorite cards
-    if not os.path.exists(config.PATH_FAV_CARDS):
-        with open(config.PATH_FAV_CARDS, 'w') as f:
+    if not os.path.exists(config.PATH_COLLECTION_CARDS_JSON):
+        with open(config.PATH_COLLECTION_CARDS_JSON, 'w') as f:
             fav_cards = {}
             json.dump(fav_cards, f)
     else:
-        with open(config.PATH_FAV_CARDS, 'r') as f:
+        with open(config.PATH_COLLECTION_CARDS_JSON, 'r') as f:
             fav_cards = json.load(f)
     # Add the card to the favorite cards
     fav_cards[cardID] = {"name": name, "cardset": cardset, "foil": foil}
     # Save the favorite cards
-    with open(config.PATH_FAV_CARDS, 'w') as f:
-        json.dump(fav_cards, f)
+    with open(config.PATH_COLLECTION_CARDS_JSON, 'w') as f:
+        json.dump(fav_cards, f, indent=4, sort_keys=True)
     return fav_cards
+
+
+def add_card_to_watchlist(cardID=None, name=None, cardset=None, foil=None):
+    # Get the card information missing from the function call
+    cardID, name, cardset, foil = _complete_card_info(cardID, name, cardset, foil)
+    # In case of multiple card IDs, take the first one
+    cardID = cardID[0]
+    # Load the watchlist cards
+    if not os.path.exists(config.PATH_WATCHLIST_CARDS):
+        with open(config.PATH_WATCHLIST_CARDS, 'w') as f:
+            watchlist_cards = {}
+            json.dump(watchlist_cards, f)
+    else:
+        with open(config.PATH_WATCHLIST_CARDS, 'r') as f:
+            watchlist_cards = json.load(f)
+    # Add the card to the watchlist cards
+    watchlist_cards[cardID] = {"name": name, "cardset": cardset, "foil": foil}
+    # Save the watchlist cards
+    with open(config.PATH_WATCHLIST_CARDS, 'w') as f:
+        json.dump(watchlist_cards, f, indent=4, sort_keys=True)
+    return watchlist_cards
 
 
 # Initialize df_prices with real values
