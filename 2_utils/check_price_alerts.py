@@ -6,7 +6,7 @@ import pandas as pd
 import json
 
 
-def _check_price_alert(cardID, range_time=config.RANGE_TIME, sell_alert=config.PRICE_PERC_SELL_ALERT, buy_alert=config.PRICE_PERC_SELL_ALERT, verbose=False):
+def _check_price_alert(cardID, range_time=config.RANGE_TIME, sell_alert=config.PRICE_PERC_SELL_ALERT, buy_alert=config.PRICE_PERC_BUY_ALERT, verbose=False):
     if verbose:
         print(f"\tChecking price alert for cardID {cardID}...")
     # today_vs_range, price_min_range, price_today, price_max_range = fun.price_check(cardID=cardID, range_time=range_time)
