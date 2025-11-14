@@ -3,9 +3,9 @@ import os
 import datetime
 
 # Global constants
-MIN_PRICE_THRESHOLD = 1.0       # Price in €
+MIN_PRICE_THRESHOLD = 2.5       # Price in TIX
 RANGE_TIME = "6m"               # Choose between ["today", "1d", "1w", "1m", "6m"]
-PRICE_PERC_SELL_ALERT = 0.75    # 75% of the max price
+PRICE_PERC_SELL_ALERT = 0.85    # 75% of the max price
 PRICE_PERC_BUY_ALERT = 0.25     # 25% of the max price
 
 # Define the base directory of your project
