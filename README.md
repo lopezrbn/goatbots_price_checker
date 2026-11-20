@@ -69,6 +69,7 @@ python 2_daily_price_alert.py
   - **Collection alerts** (cards you own)
   - **Watch-list alerts** (cards you follow)
   - **Total collection value** in TIX: the latest GOATBots price multiplied by the number of copies of each card you own, then summed. Cards not listed in the `.dek` count as one copy. Cards without a price are excluded from the total, and the e-mail reports how many copies could not be valued.
+  - **Collection value changes** over 1 day, 1 week, and 1, 3 and 6 calendar months, in TIX and as a percentage. Comparisons use your current cards and quantities on both dates, not a history of purchases and sales. If either date lacks any prices, the change is unavailable. A zero starting value has no percentage change.
 
 ---
 

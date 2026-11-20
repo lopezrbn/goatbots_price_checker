@@ -43,7 +43,7 @@ class DailyCollectionValueTests(unittest.TestCase):
             "password": "test-password",
         }))
         self.smtp = self.start_patch(patch("smtplib.SMTP_SSL"))
-        dates = pd.date_range(end="2025-01-02", periods=180).strftime("%Y%m%d")
+        dates = pd.date_range("2024-07-02", "2025-01-02").strftime("%Y%m%d")
         self.prices = pd.DataFrame(1.0, index=["11", "12", "13", "14", "99"], columns=dates)
         self.prices.insert(0, "name", ["Card 11", "Card 11", "Card 13", "Card 14", "Watchlist only"])
         self.prices.insert(1, "cardset", "TST")
@@ -96,6 +96,38 @@ class DailyCollectionValueTests(unittest.TestCase):
         self.assertIn("<h2>Sell Alerts</h2>", body)
         self.assertIn("Card 13", body)
         self.assertIn("<h2>Buy Alerts</h2>", body)
+        self.assertIn("<li>1d: Unavailable</li>", body)
+
+    def test_collection_compares_all_calendar_periods_in_tix_and_percent(self):
+        Path(config.PATH_COLLECTION_CARDS_MTGO).write_text(
+            '<Deck><Cards CatID="12" Quantity="2" /></Deck>'
+        )
+        self.prices.loc["12", ["20250101", "20241226", "20241202", "20241002", "20240702"]] = [
+            1.5, 5.0, 4.0, 0.0, 2.0
+        ]
+
+        body = self.daily_email(["12"])
+
+        self.assertIn("Total collection value:</strong> 4.00 TIX</p>", body)
+        for expected in [
+            "1d: +1.00 TIX (+33.33%)",
+            "1w: -6.00 TIX (-60.00%)",
+            "1m: -4.00 TIX (-50.00%)",
+            "3m: +4.00 TIX (percentage unavailable)",
+            "6m: +0.00 TIX (+0.00%)",
+        ]:
+            self.assertIn(f"<li>{expected}</li>", body)
+
+    def test_missing_date_or_partial_history_only_disables_affected_periods(self):
+        self.prices.drop(columns="20241226", inplace=True)
+        self.prices.loc["12", "20241202"] = float("nan")
+
+        body = self.daily_email(["12"])
+
+        self.assertIn("Total collection value:</strong> 2.00 TIX</p>", body)
+        self.assertIn("<li>1d: +1.00 TIX (+100.00%)</li>", body)
+        self.assertIn("<li>1w: Unavailable</li>", body)
+        self.assertIn("<li>1m: Unavailable</li>", body)
 
     def test_collection_without_export_counts_one_copy(self):
         body = self.daily_email(["12"])

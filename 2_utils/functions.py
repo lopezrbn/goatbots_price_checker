@@ -179,32 +179,70 @@ def read_mtgo_quantities(path):
     return quantities
 
 
-def collection_value():
-    """Return the priced subtotal in TIX and the number of unpriced copies."""
+def collection_value_history():
+    """Return daily TIX subtotals and unpriced-copy counts, plus the total number of copies."""
     with open(config.PATH_COLLECTION_CARDS_JSON) as f:
         collection = json.load(f)
-    if not collection:
-        return 0.0, 0
 
-    try:
-        quantities = read_mtgo_quantities(config.PATH_COLLECTION_CARDS_MTGO)
-    except FileNotFoundError:
-        quantities = {}
-    copies = pd.Series({card_id: quantities.get(card_id, 1) for card_id in collection})
+    quantities = {}
+    if collection:
+        try:
+            quantities = read_mtgo_quantities(config.PATH_COLLECTION_CARDS_MTGO)
+        except FileNotFoundError:
+            pass
+    copies = pd.Series({card_id: quantities.get(card_id, 1) for card_id in collection}, dtype="int64")
 
-    if df_prices is None:
-        return None, int(copies.sum())
-    price_dates = [
-        column for column in df_prices.columns
+    source = df_prices if df_prices is not None else pd.DataFrame()
+    price_dates = sorted(
+        column for column in source.columns
         if isinstance(column, str) and len(column) == 8 and column.isdecimal()
-    ]
-    if not price_dates:
-        return None, int(copies.sum())
+    )
+    prices = source.reindex(index=copies.index, columns=price_dates)
+    prices.columns = pd.to_datetime(price_dates, format="%Y%m%d")
+    history = pd.DataFrame({
+        "value_tix": prices.mul(copies, axis="index").sum(min_count=0 if copies.empty else 1),
+        "unpriced_copies": prices.isna().mul(copies, axis="index").sum(),
+    }).rename_axis("date")
+    return history, int(copies.sum())
 
-    latest_prices = df_prices[max(price_dates)].reindex(copies.index)
-    unpriced = latest_prices.isna()
-    total = (copies * latest_prices).sum(min_count=1)
-    return (None if pd.isna(total) else float(total)), int(copies[unpriced].sum())
+
+def _latest_collection_value(history, total_copies):
+    if history.empty:
+        return (None if total_copies else 0.0), total_copies
+    latest = history.index[-1]
+    total = history.at[latest, "value_tix"]
+    return (None if pd.isna(total) else float(total)), int(history.at[latest, "unpriced_copies"])
+
+
+def collection_value():
+    """Return the latest priced subtotal in TIX and the number of unpriced copies."""
+    return _latest_collection_value(*collection_value_history())
+
+
+def collection_value_report():
+    """Return the latest valuation and changes from complete calendar-date snapshots."""
+    history, total_copies = collection_value_history()
+    total, unpriced_copies = _latest_collection_value(history, total_copies)
+    periods = {
+        "1d": pd.DateOffset(days=1),
+        "1w": pd.DateOffset(weeks=1),
+        "1m": pd.DateOffset(months=1),
+        "3m": pd.DateOffset(months=3),
+        "6m": pd.DateOffset(months=6),
+    }
+    changes: dict[str, tuple[float, float | None] | None] = dict.fromkeys(periods)
+    if total is None or unpriced_copies or history.empty:
+        return total, unpriced_copies, changes
+
+    latest = history.index[-1]
+    for period, offset in periods.items():
+        date = latest - offset
+        if date not in history.index or history.at[date, "unpriced_copies"]:
+            continue
+        previous = float(history.at[date, "value_tix"])
+        change = total - previous
+        changes[period] = change, change / previous if previous else None
+    return total, unpriced_copies, changes
 
 
 def add_card_to_collection(cardID=None, name=None, cardset=None, foil=None):
