@@ -2,7 +2,6 @@ import config
 import sys
 sys.path.append(config.DIR_UTILS)
 import functions as fun
-import pandas as pd
 import json
 
 
@@ -35,8 +34,8 @@ def check_price_alerts(range_time="1m", verbose=False):
 
     print("Checking price alerts...")
 
-    # Load df with prices
-    df = pd.read_parquet(config.PATH_DF_PRICES)
+    if fun.df_prices is None:
+        raise RuntimeError("Price data has not been loaded.")
 
     # Load fav cards
     with open(config.PATH_COLLECTION_CARDS_JSON, "r") as f:
@@ -49,10 +48,12 @@ def check_price_alerts(range_time="1m", verbose=False):
     # Check alerts for fav cards and watchlist
     alerts_fav = []
     alerts_watchlist = []
-    for cardID in fav_cards.keys():
-        alerts_fav.append(_check_price_alert(cardID, range_time=range_time))
-    for cardID in watchlist_cards.keys():
-        alerts_watchlist.append(_check_price_alert(cardID, range_time=range_time))
+    for cards, alerts in ((fav_cards, alerts_fav), (watchlist_cards, alerts_watchlist)):
+        for cardID in cards:
+            if cardID not in fun.df_prices.index:
+                print(f"\tNo price history for cardID {cardID}; skipping alert.")
+                continue
+            alerts.append(_check_price_alert(cardID, range_time=range_time))
 
     # Extract sell and buy alerts
     sell_alerts = {}

@@ -48,11 +48,14 @@ This script:
 
 ### 3. Import your MTGO collection
 
+Save your Magic Online export as `0_data/2_collection_cards/collection_cards.dek`, then run:
+
 ```bash
-python 1_import_mtgo_collection.py /absolute/path/to/MTGO_Export.dek
+python 1_import_mtgo_collection.py
 ```
 
-The .dek exported from Magic Online is normalised and saved as a JSON file in `0_data/2_collection_cards.*` for fast look-ups.
+The importer saves the card list as `0_data/2_collection_cards/collection_cards.json`.
+Keep the `.dek` file next to it so the daily e-mail can count multiple copies of a card.
 
 ### 4. Run the daily price alert
 
@@ -65,7 +68,7 @@ python 2_daily_price_alert.py
 
   - **Collection alerts** (cards you own)
   - **Watch-list alerts** (cards you follow)
-  - Basic portfolio statistics
+  - **Total collection value** in TIX: the latest GOATBots price multiplied by the number of copies of each card you own, then summed. Cards not listed in the `.dek` count as one copy. Cards without a price are excluded from the total, and the e-mail reports how many copies could not be valued.
 
 ---
 

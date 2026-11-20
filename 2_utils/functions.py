@@ -6,6 +6,8 @@ import matplotlib.pyplot as plt
 import requests
 import zipfile
 import io
+from collections import Counter
+from xml.etree import ElementTree
 
 
 # Declare df_prices as a global variable so I don't have to pass it as an argument to every function
@@ -163,6 +165,46 @@ def _generate_df_prices(verbose=False):
         print("\tdf_prices saved as parquet")
 
     return df_prices
+
+
+def read_mtgo_quantities(path):
+    quantities = Counter()
+    for card in ElementTree.parse(path).getroot().findall("Cards"):
+        card_id = card.attrib["CatID"]
+        if card_id != "1":
+            quantity = int(card.attrib["Quantity"])
+            if quantity <= 0:
+                raise ValueError(f"Invalid quantity for card {card_id}: {quantity}")
+            quantities[card_id] += quantity
+    return quantities
+
+
+def collection_value():
+    """Return the priced subtotal in TIX and the number of unpriced copies."""
+    with open(config.PATH_COLLECTION_CARDS_JSON) as f:
+        collection = json.load(f)
+    if not collection:
+        return 0.0, 0
+
+    try:
+        quantities = read_mtgo_quantities(config.PATH_COLLECTION_CARDS_MTGO)
+    except FileNotFoundError:
+        quantities = {}
+    copies = pd.Series({card_id: quantities.get(card_id, 1) for card_id in collection})
+
+    if df_prices is None:
+        return None, int(copies.sum())
+    price_dates = [
+        column for column in df_prices.columns
+        if isinstance(column, str) and len(column) == 8 and column.isdecimal()
+    ]
+    if not price_dates:
+        return None, int(copies.sum())
+
+    latest_prices = df_prices[max(price_dates)].reindex(copies.index)
+    unpriced = latest_prices.isna()
+    total = (copies * latest_prices).sum(min_count=1)
+    return (None if pd.isna(total) else float(total)), int(copies[unpriced].sum())
 
 
 def add_card_to_collection(cardID=None, name=None, cardset=None, foil=None):

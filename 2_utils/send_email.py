@@ -1,4 +1,5 @@
 import config
+from functions import collection_value
 import pandas as pd
 import json
 import smtplib
@@ -47,6 +48,12 @@ def send_email():
             watchlist_alerts[col] = watchlist_alerts[col].map("{:.0%}".format)
     watchlist_alerts_html = watchlist_alerts.to_html(index=False)
 
+    total, unpriced_copies = collection_value()
+    value_summary = "Unavailable" if total is None else f"{total:,.2f} TIX"
+    if unpriced_copies:
+        detail = "partial total; " if total is not None else ""
+        value_summary += f" ({detail}copies without a price: {unpriced_copies:,})"
+
     # Create message
     message = MIMEMultipart("alternative")
     message["Subject"] = "Daily Price Update"
@@ -59,6 +66,7 @@ def send_email():
         <head></head>
         <body>
             <p>Here's the daily update on prices:</p>
+            <p><strong>Total collection value:</strong> {value_summary}</p>
             <h2>Watchlist Alerts</h2>
             {watchlist_alerts_html}
             <h2>Sell Alerts</h2>
